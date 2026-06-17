@@ -11,12 +11,8 @@ gh auth status >/dev/null 2>&1 || { echo "✗ 未登录，请先运行: gh auth 
 OWNER="$(gh api user --jq .login)"
 echo "▶ GitHub 账号: $OWNER"
 
-# 把页面里的 __OWNER__ 占位替换成真实用户名
-echo "▶ 写入仓库信息到 index.html…"
-sed -i.bak "s/__OWNER__/$OWNER/g" index.html && rm -f index.html.bak
-
 git add -A
-git commit -q -m "chore: 配置仓库 owner=$OWNER" || true
+git commit -q -m "chore: 准备部署" || true
 git branch -M "$BRANCH"
 
 # 创建远程仓库（若已存在则跳过）并推送
