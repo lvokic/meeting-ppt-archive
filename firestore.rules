@@ -1,0 +1,16 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    // 组会 PPT 记录：任何人可读、可新增；不允许改/删（降低被滥用风险）
+    match /meetings/{doc} {
+      allow read: if true;
+      allow create: if request.resource.data.keys().hasOnly(['date','name','link','ts'])
+                    && request.resource.data.name is string
+                    && request.resource.data.name.size() > 0
+                    && request.resource.data.name.size() < 200
+                    && request.resource.data.link is string
+                    && request.resource.data.link.size() < 2000;
+      allow update, delete: if false;
+    }
+  }
+}
