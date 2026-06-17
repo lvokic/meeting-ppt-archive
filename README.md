@@ -57,3 +57,27 @@ git push -u gitee master
 ## 关于链接
 本站只存链接、不存文件。链接必须是**完整网址**（`http://` / `https://` 开头），
 指向 PPT 实际所在处（飞书 / OneDrive / 坚果云 等）。否则点开会 404。
+
+---
+
+## 钉钉群定时提醒（替代飞书「数据准备小秘书」）
+
+`bot/dingtalk-notify.mjs` + `.github/workflows/dingtalk-weekly.yml`：每周四自动往钉钉群发一条
+**固定的** PPT 链接提醒。无需服务器，用 GitHub Actions 免费定时。
+
+**工作方式**：每周把新 PPT 覆盖上传到钉盘的**同一个文件**（分享链接不变）→ 机器人定时发这个固定链接。
+
+### 配置步骤
+1. **建钉钉机器人**：群设置 → 智能群助手 → 添加机器人 → 自定义 → 安全设置选 **加签** →
+   拿到 **Webhook**（里面 `access_token=` 后那段）和 **加签密钥**（`SEC` 开头）。
+2. **填到 GitHub**：仓库 `lvokic/meeting-ppt-archive` → Settings → Secrets and variables → Actions
+   - New repository secret：`DINGTALK_TOKEN`、`DINGTALK_SECRET`
+   - （可选）New variable：`PPT_LINK`（固定钉盘链接）、`PPT_TITLE`
+   - 不设 `PPT_LINK` 就改 `bot/dingtalk-notify.mjs` 里的 `CONFIG.pptLink`。
+3. **测试**：Actions 标签页 → 「钉钉组会提醒」→ Run workflow，群里应立刻收到。
+4. **改时间**：编辑 workflow 里的 cron（`0 1 * * 4` = 周四 09:00 北京时间，UTC+8）。
+
+本地测试：
+```bash
+DINGTALK_TOKEN=xxx DINGTALK_SECRET=SECxxx PPT_LINK=https://钉盘链接 node bot/dingtalk-notify.mjs
+```
