@@ -1,0 +1,327 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>组会 PPT 存档</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&display=swap" rel="stylesheet" />
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      min-height: 100vh;
+      display: flex;
+      align-items: flex-start;
+      justify-content: center;
+      padding: clamp(2rem, 8vh, 6rem) 1.2rem;
+      font-family: 'Inter', system-ui, sans-serif;
+      color: #1d1d20;
+      background: #ffffff;
+    }
+
+    .panel {
+      width: min(620px, 100%);
+      border-radius: 24px;
+      padding: 1.6rem;
+      background: rgba(255, 255, 255, 0.55);
+      backdrop-filter: blur(24px) saturate(180%);
+      -webkit-backdrop-filter: blur(24px) saturate(180%);
+      border: 1px solid rgba(255, 255, 255, 0.8);
+      box-shadow:
+        0 20px 50px -20px rgba(30, 25, 60, 0.18),
+        inset 0 1px 0 rgba(255, 255, 255, 0.9),
+        inset 0 0 0 1px rgba(180, 175, 210, 0.08);
+    }
+
+    .head { display: flex; align-items: center; justify-content: space-between; gap: 1rem; padding: 0.2rem 0.4rem 1rem; }
+    .head h1 { font-size: 1.15rem; font-weight: 600; letter-spacing: -0.01em; color: #2a2730; }
+
+    .add-btn {
+      display: inline-flex; align-items: center; gap: 0.4rem;
+      padding: 0.5rem 0.9rem; border: none; border-radius: 12px;
+      font-family: inherit; font-size: 0.88rem; font-weight: 600; color: #fff; cursor: pointer;
+      background: #6d5dfc;
+      box-shadow: 0 6px 16px -6px rgba(109, 93, 252, 0.7);
+      transition: transform 0.15s ease, filter 0.15s ease;
+    }
+    .add-btn:hover { filter: brightness(1.07); }
+    .add-btn:active { transform: translateY(1px); }
+
+    /* search */
+    .search { position: relative; display: flex; align-items: center; margin-bottom: 0.9rem; }
+    .search svg { position: absolute; left: 0.95rem; color: #9b98ad; pointer-events: none; }
+    .search input {
+      width: 100%; padding: 0.78rem 1rem 0.78rem 2.7rem;
+      font-family: inherit; font-size: 0.95rem; color: #1d1d20;
+      background: rgba(255, 255, 255, 0.6);
+      border: 1px solid rgba(120, 110, 160, 0.2); border-radius: 14px;
+      transition: border-color 0.18s ease, box-shadow 0.18s ease;
+    }
+    .search input::placeholder { color: #a5a2b5; }
+    .search input:focus { outline: none; border-color: #6d5dfc; box-shadow: 0 0 0 3px rgba(109, 93, 252, 0.18); }
+
+    ul { list-style: none; min-height: 60px; }
+    li a {
+      display: flex; align-items: center; gap: 0.9rem;
+      padding: 0.85rem 0.9rem; border-radius: 12px; text-decoration: none; color: inherit;
+      transition: background 0.18s ease, transform 0.18s ease;
+    }
+    li a:hover { background: rgba(120, 110, 170, 0.1); }
+    li a:active { transform: scale(0.99); }
+    li a:focus-visible { outline: 2px solid #6d5dfc; outline-offset: 2px; }
+    li + li { border-top: 1px solid rgba(120, 110, 160, 0.12); }
+
+    .file { flex: 1; font-size: 0.95rem; font-weight: 500; font-variant-numeric: tabular-nums; letter-spacing: -0.005em; word-break: break-all; }
+    .arrow { flex: none; color: #b7b4c6; transition: transform 0.18s ease, color 0.18s ease; }
+    li a:hover .arrow { color: #6d5dfc; transform: translateX(3px); }
+    .empty { padding: 2rem 0.9rem; text-align: center; color: #a5a2b5; font-size: 0.95rem; }
+
+    /* pagination */
+    .pager { display: flex; align-items: center; justify-content: space-between; gap: 0.6rem; margin-top: 1rem; padding-top: 0.9rem; border-top: 1px solid rgba(120, 110, 160, 0.12); }
+    .pager.hidden { display: none; }
+    .pager .info { font-size: 0.82rem; color: #8b88a0; }
+    .pager .nav { display: flex; gap: 0.4rem; }
+    .pager button {
+      display: inline-flex; align-items: center; gap: 0.3rem;
+      padding: 0.45rem 0.8rem; font-family: inherit; font-size: 0.85rem; font-weight: 500; color: #4a4757;
+      background: rgba(255, 255, 255, 0.6); border: 1px solid rgba(120, 110, 160, 0.2); border-radius: 10px; cursor: pointer;
+      transition: background 0.15s ease, color 0.15s ease, border-color 0.15s ease;
+    }
+    .pager button:hover:not(:disabled) { color: #6d5dfc; border-color: #6d5dfc; }
+    .pager button:disabled { opacity: 0.4; cursor: not-allowed; }
+
+    /* ---------- modal ---------- */
+    .overlay { position: fixed; inset: 0; z-index: 100; display: none; align-items: center; justify-content: center; padding: 1.2rem;
+      background: rgba(40, 35, 70, 0.28); backdrop-filter: blur(4px); }
+    .overlay.open { display: flex; }
+    .modal {
+      width: min(440px, 100%); border-radius: 22px; padding: 1.5rem;
+      background: rgba(255, 255, 255, 0.92);
+      backdrop-filter: blur(30px) saturate(180%); -webkit-backdrop-filter: blur(30px) saturate(180%);
+      border: 1px solid rgba(255, 255, 255, 0.9);
+      box-shadow: 0 30px 70px -25px rgba(30, 25, 60, 0.4), inset 0 1px 0 rgba(255, 255, 255, 0.9);
+    }
+    .modal h2 { font-size: 1.1rem; font-weight: 600; margin-bottom: 0.3rem; }
+    .modal .sub { font-size: 0.85rem; color: #8b88a0; margin-bottom: 1.1rem; line-height: 1.5; }
+    .field { margin-bottom: 0.9rem; }
+    .field label { display: block; font-size: 0.82rem; font-weight: 600; color: #4a4757; margin-bottom: 0.35rem; }
+    .field input {
+      width: 100%; padding: 0.7rem 0.85rem; font-family: inherit; font-size: 0.92rem; color: #1d1d20;
+      background: #fff; border: 1px solid rgba(120, 110, 160, 0.28); border-radius: 11px;
+      transition: border-color 0.15s ease, box-shadow 0.15s ease;
+    }
+    .field input:focus { outline: none; border-color: #6d5dfc; box-shadow: 0 0 0 3px rgba(109, 93, 252, 0.16); }
+    .field .hint { font-size: 0.76rem; color: #a5a2b5; margin-top: 0.3rem; line-height: 1.45; }
+    .field .hint a { color: #6d5dfc; font-weight: 500; }
+    .upload-link {
+      display: inline-flex; align-items: center; gap: 0.4rem; margin-bottom: 1rem;
+      font-size: 0.82rem; font-weight: 500; color: #6d5dfc; text-decoration: none;
+      padding: 0.55rem 0.8rem; border: 1px dashed rgba(109, 93, 252, 0.5); border-radius: 11px; width: 100%;
+      transition: background 0.15s ease;
+    }
+    .upload-link:hover { background: rgba(109, 93, 252, 0.07); }
+    .modal-actions { display: flex; gap: 0.6rem; margin-top: 1.2rem; }
+    .modal-actions button { flex: 1; padding: 0.7rem; font-family: inherit; font-size: 0.9rem; font-weight: 600; border-radius: 12px; cursor: pointer; transition: filter 0.15s ease, background 0.15s ease; }
+    .btn-cancel { background: rgba(120, 110, 160, 0.12); border: none; color: #4a4757; }
+    .btn-cancel:hover { background: rgba(120, 110, 160, 0.2); }
+    .btn-submit { background: #6d5dfc; border: none; color: #fff; box-shadow: 0 6px 16px -6px rgba(109, 93, 252, 0.7); }
+    .btn-submit:hover { filter: brightness(1.07); }
+
+    .toast {
+      position: fixed; left: 50%; bottom: 2rem; transform: translateX(-50%) translateY(20px);
+      z-index: 200; padding: 0.8rem 1.2rem; border-radius: 14px; font-size: 0.88rem; font-weight: 500; color: #fff;
+      background: rgba(30, 25, 60, 0.92); backdrop-filter: blur(8px); box-shadow: 0 14px 30px -10px rgba(30,25,60,0.5);
+      opacity: 0; pointer-events: none; transition: opacity 0.25s ease, transform 0.25s ease; max-width: 90vw; text-align: center;
+    }
+    .toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
+  </style>
+</head>
+<body>
+  <main class="panel">
+    <div class="head">
+      <h1>组会 PPT 存档</h1>
+      <button class="add-btn" id="openAdd" type="button">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 5v14"/><path d="M5 12h14"/></svg>
+        添加
+      </button>
+    </div>
+
+    <div class="search" role="search">
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/></svg>
+      <label for="q" style="position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0)">搜索文件</label>
+      <input id="q" type="search" placeholder="搜索文件名…" autocomplete="off" />
+    </div>
+
+    <ul id="list"></ul>
+
+    <nav class="pager" id="pager" aria-label="分页">
+      <span class="info" id="info"></span>
+      <div class="nav">
+        <button id="prev" type="button"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m15 18-6-6 6-6"/></svg>上一页</button>
+        <button id="next" type="button">下一页<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m9 18 6-6-6-6"/></svg></button>
+      </div>
+    </nav>
+  </main>
+
+  <!-- Add modal -->
+  <div class="overlay" id="overlay" role="dialog" aria-modal="true" aria-labelledby="modalTitle">
+    <div class="modal">
+      <h2 id="modalTitle">添加组会 PPT</h2>
+      <p class="sub">先把 PPT 上传到仓库，再填写文件名与链接。提交后会跳转到 GitHub 完成保存，所有人刷新即可看到。</p>
+
+      <a class="upload-link" id="uploadLink" href="#" target="_blank" rel="noopener">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><path d="M17 8l-5-5-5 5"/><path d="M12 3v12"/></svg>
+        ① 上传 PPT 文件到仓库 files/
+      </a>
+
+      <div class="field">
+        <label for="fFile">② 文件名</label>
+        <input id="fFile" type="text" placeholder="2026-6-19-checkin.ppt" autocomplete="off" />
+        <p class="hint">建议以日期开头 <b>YYYY-M-D</b>，会自动按日期排序。</p>
+      </div>
+      <div class="field">
+        <label for="fLink">③ 链接</label>
+        <input id="fLink" type="text" placeholder="files/2026-6-19-checkin.ppt" autocomplete="off" />
+        <p class="hint">仓库内文件填相对路径（如 <b>files/xxx.ppt</b>），或粘贴任意外部链接。</p>
+      </div>
+
+      <div class="modal-actions">
+        <button class="btn-cancel" id="cancelAdd" type="button">取消</button>
+        <button class="btn-submit" id="submitAdd" type="button">生成并提交</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="toast" id="toast" role="status"></div>
+
+  <script>
+    /* ============================================================
+       配置：部署后会被自动填好仓库信息
+       ============================================================ */
+    const REPO = { owner: '__OWNER__', name: 'meeting-ppt-archive', branch: 'main' };
+
+    const PAGE_SIZE = 8;
+    const $ = (s) => document.querySelector(s);
+    const esc = (s) => String(s).replace(/[&<>"']/g, (c) => ({ '&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;' }[c]));
+
+    // 本地种子（GitHub Pages 上以 meetings.json 为准）
+    const SEED = [
+      { file: '2026-6-12-checkin.ppt', link: '#' },
+      { file: '2026-6-5-rag-survey.ppt', link: '#' },
+      { file: '2026-5-29-gnn-molecule.ppt', link: '#' },
+      { file: '2026-5-22-diffusion-sampling.ppt', link: '#' },
+      { file: '2026-5-15-rl-reward-align.ppt', link: '#' },
+      { file: '2026-5-8-efficient-attention.ppt', link: '#' },
+      { file: '2026-4-30-ssl-medical.ppt', link: '#' },
+      { file: '2026-4-24-multi-agent.ppt', link: '#' },
+      { file: '2026-4-17-contrastive-fewshot.ppt', link: '#' },
+      { file: '2026-4-10-vit-pretrain.ppt', link: '#' },
+      { file: '2026-4-3-prompt-tuning.ppt', link: '#' },
+      { file: '2026-3-27-graph-transformer.ppt', link: '#' },
+    ];
+
+    let DATA = SEED.slice();
+    let sorted = [];
+    let query = '';
+    let page = 1;
+
+    const dateKey = (file) => {
+      const m = String(file).match(/(\d{4})-(\d{1,2})-(\d{1,2})/);
+      return m ? Number(m[1]) * 10000 + Number(m[2]) * 100 + Number(m[3]) : 0;
+    };
+    const resort = () => { sorted = DATA.slice().sort((a, b) => dateKey(b.file) - dateKey(a.file)); };
+
+    const visible = () => {
+      const q = query.trim().toLowerCase();
+      return q ? sorted.filter((m) => m.file.toLowerCase().includes(q)) : sorted;
+    };
+
+    function render() {
+      const rows = visible();
+      const pages = Math.max(1, Math.ceil(rows.length / PAGE_SIZE));
+      if (page > pages) page = pages;
+      const slice = rows.slice((page - 1) * PAGE_SIZE, (page - 1) * PAGE_SIZE + PAGE_SIZE);
+
+      $('#list').innerHTML = slice.length
+        ? slice.map((m) => `
+          <li><a href="${esc(m.link)}" target="_blank" rel="noopener">
+            <span class="file">${esc(m.file)}</span>
+            <svg class="arrow" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M7 17 17 7"/><path d="M7 7h10v10"/></svg>
+          </a></li>`).join('')
+        : `<li class="empty">没有匹配的文件</li>`;
+
+      const pager = $('#pager');
+      if (rows.length <= PAGE_SIZE) pager.classList.add('hidden');
+      else {
+        pager.classList.remove('hidden');
+        $('#info').textContent = `第 ${page} / ${pages} 页 · 共 ${rows.length} 个`;
+        $('#prev').disabled = page <= 1;
+        $('#next').disabled = page >= pages;
+      }
+    }
+
+    /* ---------- 数据加载：优先 meetings.json ---------- */
+    fetch('meetings.json', { cache: 'no-store' })
+      .then((r) => r.ok ? r.json() : Promise.reject())
+      .then((json) => { if (Array.isArray(json) && json.length) { DATA = json; resort(); render(); } })
+      .catch(() => { /* 本地直接打开时用 SEED */ });
+
+    /* ---------- 搜索 / 分页 ---------- */
+    let t;
+    $('#q').addEventListener('input', (e) => { clearTimeout(t); t = setTimeout(() => { query = e.target.value; page = 1; render(); }, 100); });
+    $('#prev').addEventListener('click', () => { if (page > 1) { page--; render(); } });
+    $('#next').addEventListener('click', () => { page++; render(); });
+
+    /* ---------- 添加 ---------- */
+    const overlay = $('#overlay');
+    const openModal = () => {
+      $('#uploadLink').href = `https://github.com/${REPO.owner}/${REPO.name}/upload/${REPO.branch}/files`;
+      overlay.classList.add('open');
+      $('#fFile').focus();
+    };
+    const closeModal = () => overlay.classList.remove('open');
+
+    $('#openAdd').addEventListener('click', openModal);
+    $('#cancelAdd').addEventListener('click', closeModal);
+    overlay.addEventListener('click', (e) => { if (e.target === overlay) closeModal(); });
+    document.addEventListener('keydown', (e) => { if (e.key === 'Escape') closeModal(); });
+
+    function toast(msg) {
+      const el = $('#toast');
+      el.textContent = msg;
+      el.classList.add('show');
+      clearTimeout(toast._t);
+      toast._t = setTimeout(() => el.classList.remove('show'), 4200);
+    }
+
+    $('#submitAdd').addEventListener('click', async () => {
+      const file = $('#fFile').value.trim();
+      const link = $('#fLink').value.trim();
+      if (!file) { $('#fFile').focus(); toast('请填写文件名'); return; }
+      if (!link) { $('#fLink').focus(); toast('请填写链接'); return; }
+
+      // 生成新的完整 meetings.json（按日期降序）
+      const next = DATA.slice();
+      next.push({ file, link });
+      next.sort((a, b) => dateKey(b.file) - dateKey(a.file));
+      const jsonText = JSON.stringify(next, null, 2) + '\n';
+
+      // 复制到剪贴板
+      try { await navigator.clipboard.writeText(jsonText); } catch (_) {}
+
+      // 立即本地预览
+      DATA = next; resort(); render(); closeModal();
+      $('#fFile').value = ''; $('#fLink').value = '';
+
+      // 打开 GitHub 在线编辑器完成保存
+      const editUrl = `https://github.com/${REPO.owner}/${REPO.name}/edit/${REPO.branch}/meetings.json`;
+      window.open(editUrl, '_blank', 'noopener');
+      toast('新内容已复制 ✓ 在打开的页面全选(Ctrl/Cmd+A)粘贴并提交即可');
+    });
+
+    resort();
+    render();
+  </script>
+</body>
+</html>
