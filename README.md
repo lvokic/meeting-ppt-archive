@@ -62,22 +62,23 @@ git push -u gitee master
 
 ## 钉钉群定时提醒（替代飞书「数据准备小秘书」）
 
-`bot/dingtalk-notify.mjs` + `.github/workflows/dingtalk-weekly.yml`：每周四自动往钉钉群发一条
-**固定的** PPT 链接提醒。无需服务器，用 GitHub Actions 免费定时。
+每周四自动：用模板生成带本周日期的 PPT → 提交到 Gitee 仓库 `files/`（**永久链接、旧的全部保留**）
+→ 更新网站 `meetings.json` → 发钉钉群。无需服务器、无需钉钉企业凭证，用 GitHub Actions 免费定时。
 
-**工作方式**：每周把新 PPT 覆盖上传到钉盘的**同一个文件**（分享链接不变）→ 机器人定时发这个固定链接。
+- `bot/make_ppt.py`：用 `bot/template.pptx` 生成，替换占位符 `{{DATE}}`、`{{TITLE}}`
+- `bot/publish.mjs`：上传 Gitee + 更新网站 + 发钉钉
+- `.github/workflows/dingtalk-weekly.yml`：每周四 09:00（北京时间）触发，带手动按钮
 
 ### 配置步骤
-1. **建钉钉机器人**：群设置 → 智能群助手 → 添加机器人 → 自定义 → 安全设置选 **加签** →
-   拿到 **Webhook**（里面 `access_token=` 后那段）和 **加签密钥**（`SEC` 开头）。
-2. **填到 GitHub**：仓库 `lvokic/meeting-ppt-archive` → Settings → Secrets and variables → Actions
-   - New repository secret：`DINGTALK_TOKEN`、`DINGTALK_SECRET`
-   - （可选）New variable：`PPT_LINK`（固定钉盘链接）、`PPT_TITLE`
-   - 不设 `PPT_LINK` 就改 `bot/dingtalk-notify.mjs` 里的 `CONFIG.pptLink`。
-3. **测试**：Actions 标签页 → 「钉钉组会提醒」→ Run workflow，群里应立刻收到。
-4. **改时间**：编辑 workflow 里的 cron（`0 1 * * 4` = 周四 09:00 北京时间，UTC+8）。
+1. **放模板**：把你的 PPT 模板放到 `bot/template.pptx`，在要填日期的文本框里写占位符
+   `{{TITLE}}`（→ `2026.06.25-checkin`）或 `{{DATE}}`（→ `2026-06-25`）。提交推送。
+2. **建钉钉机器人**：群设置 → 智能群助手 → 添加机器人 → **自定义** → 安全设置选 **加签** →
+   拿到 **Webhook** 里 `access_token=` 后那段，和 **加签密钥**（`SEC` 开头）。
+3. **填 GitHub Secrets**：仓库 `lvokic/meeting-ppt-archive` → Settings → Secrets and variables → Actions → New repository secret：
+   - `DINGTALK_TOKEN`、`DINGTALK_SECRET`、`GITEE_TOKEN`（Gitee 私人令牌，用来写仓库）
+4. **测试**：Actions 标签页 → 「钉钉组会提醒」→ **Run workflow**，群里应收到本周 PPT，网站也多一条。
+5. **改时间**：编辑 workflow 里的 cron（`0 1 * * 4` = 周四 09:00 北京，UTC+8）。
 
-本地测试：
-```bash
-DINGTALK_TOKEN=xxx DINGTALK_SECRET=SECxxx PPT_LINK=https://钉盘链接 node bot/dingtalk-notify.mjs
-```
+> PPT 每周一个新文件存在仓库 `files/` 下，链接形如
+> `https://gitee.com/qjw20021227/meeting-ppt-archive/raw/master/files/2026-06-25-checkin.pptx`，
+> 永久有效、旧的不受影响。点开是下载 `.pptx`。

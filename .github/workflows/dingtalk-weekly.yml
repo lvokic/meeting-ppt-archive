@@ -11,13 +11,26 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: 安装 python-pptx
+        run: pip install python-pptx
+
+      - name: 用模板生成本周 PPT
+        id: gen
+        run: python3 bot/make_ppt.py
+
       - uses: actions/setup-node@v4
         with:
           node-version: '20'
-      - name: 发送钉钉提醒
+      - name: 上传 Gitee + 更新网站 + 发钉钉群
         env:
+          GITEE_TOKEN: ${{ secrets.GITEE_TOKEN }}
           DINGTALK_TOKEN: ${{ secrets.DINGTALK_TOKEN }}
           DINGTALK_SECRET: ${{ secrets.DINGTALK_SECRET }}
-          PPT_LINK: ${{ vars.PPT_LINK }}      # 可在仓库 Settings → Variables 里设置（不想写进代码就用这个）
-          PPT_TITLE: ${{ vars.PPT_TITLE }}
-        run: node bot/dingtalk-notify.mjs
+          PPT_PATH: ${{ steps.gen.outputs.ppt_path }}
+          PPT_DATE: ${{ steps.gen.outputs.ppt_date }}
+          PPT_TITLE: ${{ steps.gen.outputs.ppt_title }}
+        run: node bot/publish.mjs
