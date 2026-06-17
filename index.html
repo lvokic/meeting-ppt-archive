@@ -4,39 +4,39 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>组会 PPT 存档</title>
-  <link rel="preconnect" href="https://fonts.googleapis.com" />
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&display=swap" rel="stylesheet" />
   <style>
+    /* 系统字体，国内零外部依赖、秒开 */
+    :root { --font: -apple-system, BlinkMacSystemFont, "PingFang SC", "Microsoft YaHei", "Segoe UI", system-ui, sans-serif; }
     * { box-sizing: border-box; margin: 0; padding: 0; }
     body {
       min-height: 100vh; display: flex; align-items: flex-start; justify-content: center;
-      padding: clamp(2rem, 8vh, 6rem) 1.2rem;
-      font-family: 'Inter', system-ui, sans-serif; color: #1d1d20; background: #ffffff;
+      padding: clamp(2rem, 8vh, 6rem) 1.2rem; font-family: var(--font); color: #1d1d20; background: #ffffff;
     }
     .panel {
-      width: min(620px, 100%); border-radius: 24px; padding: 1.6rem;
+      width: min(640px, 100%); border-radius: 24px; padding: 1.6rem;
       background: rgba(255, 255, 255, 0.55);
       backdrop-filter: blur(24px) saturate(180%); -webkit-backdrop-filter: blur(24px) saturate(180%);
       border: 1px solid rgba(255, 255, 255, 0.8);
       box-shadow: 0 20px 50px -20px rgba(30, 25, 60, 0.18), inset 0 1px 0 rgba(255, 255, 255, 0.9), inset 0 0 0 1px rgba(180, 175, 210, 0.08);
     }
-    .head { display: flex; align-items: center; justify-content: space-between; gap: 1rem; padding: 0.2rem 0.4rem 1rem; }
+    .head { display: flex; align-items: center; justify-content: space-between; gap: 0.6rem; padding: 0.2rem 0.4rem 1rem; }
     .head h1 { font-size: 1.15rem; font-weight: 600; letter-spacing: -0.01em; color: #2a2730; }
-    .add-btn {
-      display: inline-flex; align-items: center; gap: 0.4rem; padding: 0.5rem 0.9rem; border: none; border-radius: 12px;
-      font-family: inherit; font-size: 0.88rem; font-weight: 600; color: #fff; cursor: pointer; background: #6d5dfc;
-      box-shadow: 0 6px 16px -6px rgba(109, 93, 252, 0.7); transition: transform 0.15s ease, filter 0.15s ease;
+    .head-actions { display: flex; align-items: center; gap: 0.5rem; }
+    .btn {
+      display: inline-flex; align-items: center; gap: 0.4rem; padding: 0.5rem 0.85rem; border: none; border-radius: 12px;
+      font-family: inherit; font-size: 0.86rem; font-weight: 600; cursor: pointer; transition: transform 0.15s ease, filter 0.15s ease, background 0.15s ease;
     }
-    .add-btn:hover { filter: brightness(1.07); }
-    .add-btn:active { transform: translateY(1px); }
+    .btn:active { transform: translateY(1px); }
+    .btn-primary { color: #fff; background: #6d5dfc; box-shadow: 0 6px 16px -6px rgba(109, 93, 252, 0.7); }
+    .btn-primary:hover { filter: brightness(1.07); }
+    .btn-ghost { color: #6a6780; background: rgba(120, 110, 160, 0.1); }
+    .btn-ghost:hover { background: rgba(120, 110, 160, 0.18); }
+    .btn-ghost.on { color: #6d5dfc; background: rgba(109, 93, 252, 0.14); }
+    .hidden { display: none !important; }
 
-    .notice {
-      display: none; align-items: flex-start; gap: 0.5rem; margin: 0 0.1rem 0.9rem; padding: 0.6rem 0.8rem;
-      font-size: 0.78rem; line-height: 1.45; color: #8a6d1f; background: rgba(255, 214, 102, 0.18);
-      border: 1px solid rgba(212, 167, 44, 0.35); border-radius: 11px;
-    }
-    .notice.show { display: flex; }
+    .notice { display: flex; align-items: flex-start; gap: 0.5rem; margin: 0 0.1rem 0.9rem; padding: 0.6rem 0.8rem; font-size: 0.78rem; line-height: 1.45; border-radius: 11px; }
+    .notice.err { color: #9b2c2c; background: rgba(254, 178, 178, 0.22); border: 1px solid rgba(197, 48, 48, 0.3); }
+    .notice.info { color: #8a6d1f; background: rgba(255, 214, 102, 0.18); border: 1px solid rgba(212, 167, 44, 0.35); }
 
     .search { position: relative; display: flex; align-items: center; margin-bottom: 0.9rem; }
     .search svg { position: absolute; left: 0.95rem; color: #9b98ad; pointer-events: none; }
@@ -49,18 +49,19 @@
     .search input:focus { outline: none; border-color: #6d5dfc; box-shadow: 0 0 0 3px rgba(109, 93, 252, 0.18); }
 
     ul { list-style: none; min-height: 60px; }
-    li a {
-      display: flex; align-items: center; gap: 0.9rem; padding: 0.85rem 0.9rem; border-radius: 12px;
-      text-decoration: none; color: inherit; transition: background 0.18s ease, transform 0.18s ease;
-    }
-    li a:hover { background: rgba(120, 110, 170, 0.1); }
-    li a:active { transform: scale(0.99); }
-    li a:focus-visible { outline: 2px solid #6d5dfc; outline-offset: 2px; }
-    li + li { border-top: 1px solid rgba(120, 110, 160, 0.12); }
+    .row { display: flex; align-items: center; gap: 0.6rem; border-radius: 12px; transition: background 0.18s ease; }
+    .row:hover { background: rgba(120, 110, 170, 0.08); }
+    .row + .row { border-top: 1px solid rgba(120, 110, 160, 0.12); }
+    .row .link { flex: 1; min-width: 0; display: flex; align-items: center; gap: 0.9rem; padding: 0.85rem 0.9rem; text-decoration: none; color: inherit; }
+    .row .link:focus-visible { outline: 2px solid #6d5dfc; outline-offset: 2px; border-radius: 10px; }
     .date { flex: none; width: 96px; font-size: 0.84rem; font-weight: 500; color: #8b88a0; font-variant-numeric: tabular-nums; }
-    .name { flex: 1; font-size: 0.95rem; font-weight: 500; letter-spacing: -0.005em; word-break: break-word; }
+    .name { flex: 1; min-width: 0; font-size: 0.95rem; font-weight: 500; letter-spacing: -0.005em; word-break: break-word; }
     .arrow { flex: none; color: #b7b4c6; transition: transform 0.18s ease, color 0.18s ease; }
-    li a:hover .arrow { color: #6d5dfc; transform: translateX(3px); }
+    .row .link:hover .arrow { color: #6d5dfc; transform: translateX(3px); }
+    .row-tools { display: flex; gap: 0.2rem; padding-right: 0.5rem; }
+    .icon-btn { display: grid; place-items: center; width: 32px; height: 32px; border: none; border-radius: 9px; background: transparent; color: #9b98ad; cursor: pointer; transition: background 0.15s ease, color 0.15s ease; }
+    .icon-btn:hover { background: rgba(120, 110, 160, 0.16); color: #4a4757; }
+    .icon-btn.danger:hover { background: rgba(254, 178, 178, 0.35); color: #c53030; }
     .empty { padding: 2.4rem 0.9rem; text-align: center; color: #a5a2b5; font-size: 0.95rem; }
 
     .pager { display: flex; align-items: center; justify-content: space-between; gap: 0.6rem; margin-top: 1rem; padding-top: 0.9rem; border-top: 1px solid rgba(120, 110, 160, 0.12); }
@@ -78,12 +79,13 @@
     .overlay { position: fixed; inset: 0; z-index: 100; display: none; align-items: center; justify-content: center; padding: 1.2rem; background: rgba(40, 35, 70, 0.28); backdrop-filter: blur(4px); }
     .overlay.open { display: flex; }
     .modal {
-      width: min(440px, 100%); border-radius: 22px; padding: 1.5rem; background: rgba(255, 255, 255, 0.92);
+      width: min(440px, 100%); border-radius: 22px; padding: 1.5rem; background: rgba(255, 255, 255, 0.95);
       backdrop-filter: blur(30px) saturate(180%); -webkit-backdrop-filter: blur(30px) saturate(180%);
       border: 1px solid rgba(255, 255, 255, 0.9); box-shadow: 0 30px 70px -25px rgba(30, 25, 60, 0.4), inset 0 1px 0 rgba(255, 255, 255, 0.9);
     }
     .modal h2 { font-size: 1.1rem; font-weight: 600; margin-bottom: 0.3rem; }
     .modal .sub { font-size: 0.85rem; color: #8b88a0; margin-bottom: 1.1rem; line-height: 1.5; }
+    .modal .sub a { color: #6d5dfc; }
     .field { margin-bottom: 0.9rem; }
     .field label { display: block; font-size: 0.82rem; font-weight: 600; color: #4a4757; margin-bottom: 0.35rem; }
     .field input, .field select {
@@ -94,17 +96,17 @@
     .field input:focus, .field select:focus { outline: none; border-color: #6d5dfc; box-shadow: 0 0 0 3px rgba(109, 93, 252, 0.16); }
     .field .hint { font-size: 0.76rem; color: #a5a2b5; margin-top: 0.3rem; line-height: 1.45; }
     .modal-actions { display: flex; gap: 0.6rem; margin-top: 1.2rem; }
-    .modal-actions button { flex: 1; padding: 0.7rem; font-family: inherit; font-size: 0.9rem; font-weight: 600; border-radius: 12px; cursor: pointer; transition: filter 0.15s ease, background 0.15s ease; }
-    .btn-cancel { background: rgba(120, 110, 160, 0.12); border: none; color: #4a4757; }
+    .modal-actions button { flex: 1; padding: 0.7rem; font-family: inherit; font-size: 0.9rem; font-weight: 600; border-radius: 12px; cursor: pointer; border: none; transition: filter 0.15s ease, background 0.15s ease; }
+    .btn-cancel { background: rgba(120, 110, 160, 0.12); color: #4a4757; }
     .btn-cancel:hover { background: rgba(120, 110, 160, 0.2); }
-    .btn-submit { background: #6d5dfc; border: none; color: #fff; box-shadow: 0 6px 16px -6px rgba(109, 93, 252, 0.7); }
+    .btn-submit { background: #6d5dfc; color: #fff; box-shadow: 0 6px 16px -6px rgba(109, 93, 252, 0.7); }
     .btn-submit:hover { filter: brightness(1.07); }
     .btn-submit:disabled { opacity: 0.55; cursor: progress; }
 
     .toast {
       position: fixed; left: 50%; bottom: 2rem; transform: translateX(-50%) translateY(20px); z-index: 200;
       padding: 0.8rem 1.2rem; border-radius: 14px; font-size: 0.88rem; font-weight: 500; color: #fff;
-      background: rgba(30, 25, 60, 0.92); backdrop-filter: blur(8px); box-shadow: 0 14px 30px -10px rgba(30,25,60,0.5);
+      background: rgba(30, 25, 60, 0.92); box-shadow: 0 14px 30px -10px rgba(30,25,60,0.5);
       opacity: 0; pointer-events: none; transition: opacity 0.25s ease, transform 0.25s ease; max-width: 90vw; text-align: center;
     }
     .toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
@@ -114,16 +116,18 @@
   <main class="panel">
     <div class="head">
       <h1>组会 PPT 存档</h1>
-      <button class="add-btn" id="openAdd" type="button">
-        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 5v14"/><path d="M5 12h14"/></svg>
-        添加
-      </button>
+      <div class="head-actions">
+        <button class="btn btn-primary hidden" id="openAdd" type="button">
+          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 5v14"/><path d="M5 12h14"/></svg>添加
+        </button>
+        <button class="btn btn-ghost" id="adminToggle" type="button" title="管理模式（添加/编辑/删除）">
+          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12.22 2h-.44a2 2 0 0 0-2 2v.18a2 2 0 0 1-1 1.73l-.43.25a2 2 0 0 1-2 0l-.15-.08a2 2 0 0 0-2.73.73l-.22.38a2 2 0 0 0 .73 2.73l.15.1a2 2 0 0 1 1 1.72v.51a2 2 0 0 1-1 1.74l-.15.09a2 2 0 0 0-.73 2.73l.22.38a2 2 0 0 0 2.73.73l.15-.08a2 2 0 0 1 2 0l.43.25a2 2 0 0 1 1 1.73V20a2 2 0 0 0 2 2h.44a2 2 0 0 0 2-2v-.18a2 2 0 0 1 1-1.73l.43-.25a2 2 0 0 1 2 0l.15.08a2 2 0 0 0 2.73-.73l.22-.39a2 2 0 0 0-.73-2.73l-.15-.08a2 2 0 0 1-1-1.74v-.5a2 2 0 0 1 1-1.74l.15-.09a2 2 0 0 0 .73-2.73l-.22-.38a2 2 0 0 0-2.73-.73l-.15.08a2 2 0 0 1-2 0l-.43-.25a2 2 0 0 1-1-1.73V4a2 2 0 0 0-2-2z"/><circle cx="12" cy="12" r="3"/></svg>
+          <span id="adminLabel">管理</span>
+        </button>
+      </div>
     </div>
 
-    <div class="notice" id="notice">
-      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="flex:none;margin-top:1px" aria-hidden="true"><path d="M12 9v4"/><path d="M12 17h.01"/><circle cx="12" cy="12" r="10"/></svg>
-      <span>尚未配置云端后端，当前为<b>本地模式</b>：添加的记录只存在你这台浏览器，别人看不到。按 README 填好 Firebase 配置后即可全员共享。</span>
-    </div>
+    <div class="notice err hidden" id="errNotice"></div>
 
     <div class="search" role="search">
       <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/></svg>
@@ -142,25 +146,24 @@
     </nav>
   </main>
 
+  <!-- 添加 / 编辑 弹窗 -->
   <div class="overlay" id="overlay" role="dialog" aria-modal="true" aria-labelledby="modalTitle">
     <div class="modal">
       <h2 id="modalTitle">添加组会 PPT</h2>
-      <p class="sub">填写名字与链接、选择组会日期（每周四）即可。无需上传文件，直接保存。</p>
-
+      <p class="sub">填写名字与链接、选择组会日期（每周四）。链接请填完整网址（以 http 开头）。</p>
       <div class="field">
         <label for="fDate">组会日期（周四）</label>
         <select id="fDate"></select>
       </div>
       <div class="field">
         <label for="fName">名字</label>
-        <input id="fName" type="text" placeholder="例如：RAG 最新进展综述" autocomplete="off" />
+        <input id="fName" type="text" placeholder="例如：6-18-checkin" autocomplete="off" />
       </div>
       <div class="field">
         <label for="fLink">链接</label>
-        <input id="fLink" type="url" placeholder="https://… （PPT / Slides / 云盘 分享链接）" autocomplete="off" />
-        <p class="hint">粘贴任意可访问的链接即可，例如 Google Slides、OneDrive、坚果云等。</p>
+        <input id="fLink" type="url" placeholder="https://… （PPT / 飞书 / OneDrive 分享链接）" autocomplete="off" />
+        <p class="hint">必须以 <b>http://</b> 或 <b>https://</b> 开头，否则点开会 404。</p>
       </div>
-
       <div class="modal-actions">
         <button class="btn-cancel" id="cancelAdd" type="button">取消</button>
         <button class="btn-submit" id="submitAdd" type="button">保存</button>
@@ -168,78 +171,98 @@
     </div>
   </div>
 
+  <!-- 令牌弹窗 -->
+  <div class="overlay" id="tokenOverlay" role="dialog" aria-modal="true">
+    <div class="modal">
+      <h2>进入管理模式</h2>
+      <p class="sub">粘贴你的 <b>Gitee 私人令牌</b>（只需填一次，保存在本机浏览器，不上传）。<br/>生成入口：<a href="https://gitee.com/profile/personal_access_tokens" target="_blank" rel="noopener">gitee.com 设置 → 私人令牌</a>，勾选 <b>projects</b> 权限即可。</p>
+      <div class="field">
+        <label for="fToken">Gitee 私人令牌</label>
+        <input id="fToken" type="password" placeholder="粘贴令牌…" autocomplete="off" />
+      </div>
+      <div class="modal-actions">
+        <button class="btn-cancel" id="cancelToken" type="button">取消</button>
+        <button class="btn-submit" id="saveToken" type="button">进入管理</button>
+      </div>
+    </div>
+  </div>
+
   <div class="toast" id="toast" role="status"></div>
 
-  <script type="module">
+  <script>
     /* ============================================================
-       Firebase 配置 —— 全员共享的唯一前置
-       在 https://console.firebase.google.com 建项目、开 Firestore，
-       把网页应用的 firebaseConfig 粘贴到这里（这些值是公开的，不是密钥）。
-       projectId 留空时，页面自动降级为「本地模式」。
+       配置：Gitee 仓库（部署时自动填好）
        ============================================================ */
-    const FIREBASE_CONFIG = {
-      apiKey: "AIzaSyDda7ueYHVyS9dz2g--Uw5HEYiUbricXjM",
-      authDomain: "group-meeting-ppt-archive.firebaseapp.com",
-      projectId: "group-meeting-ppt-archive",
-      appId: "1:1850027996:web:fa34b9c51bc823d637e919"
-    };
+    const GITEE = { owner: '__GITEE_OWNER__', repo: 'meeting-ppt-archive', branch: 'master', path: 'meetings.json' };
+    const API = `https://gitee.com/api/v5/repos/${GITEE.owner}/${GITEE.repo}/contents/${GITEE.path}`;
 
     const PAGE_SIZE = 8;
     const $ = (s) => document.querySelector(s);
     const esc = (s) => String(s).replace(/[&<>"']/g, (c) => ({ '&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;' }[c]));
+    // UTF-8 安全的 base64
+    const b64encode = (str) => btoa(unescape(encodeURIComponent(str)));
+    const b64decode = (b64) => decodeURIComponent(escape(atob(b64.replace(/\s/g, ''))));
 
-    let DATA = [];        // [{id?, date:'YYYY-MM-DD', name, link, ts}]
+    let DATA = [];        // [{date, name, link}]
+    let fileSha = null;   // 当前 meetings.json 的 sha（写入需要）
     let query = '';
     let page = 1;
+    let editingIndex = -1;
+    const TOKEN_KEY = 'gitee-token';
+    let token = localStorage.getItem(TOKEN_KEY) || '';
+    let admin = false;
 
-    /* ---------------- 后端：Firestore 或 localStorage ---------------- */
-    const cloudOn = !!FIREBASE_CONFIG.projectId;
-    let cloud = null;     // { addDoc, collection, db }
-
-    const LS_KEY = 'meeting-ppt-archive';
-    const lsLoad = () => { try { return JSON.parse(localStorage.getItem(LS_KEY)) || []; } catch { return []; } };
-    const lsSave = (arr) => localStorage.setItem(LS_KEY, JSON.stringify(arr));
-
-    async function initBackend() {
-      if (!cloudOn) {
-        $('#notice').classList.add('show');
-        DATA = lsLoad();
+    /* ---------------- 读取数据（公开，无需令牌）---------------- */
+    async function loadData() {
+      try {
+        const res = await fetch(`${API}?ref=${GITEE.branch}&t=${Date.now()}`, { cache: 'no-store' });
+        if (res.status === 404) { DATA = []; fileSha = null; resortRender(); return; }
+        if (!res.ok) throw new Error('HTTP ' + res.status);
+        const json = await res.json();
+        fileSha = json.sha;
+        const text = b64decode(json.content || '');
+        const arr = JSON.parse(text || '[]');
+        DATA = Array.isArray(arr) ? arr : [];
+        $('#errNotice').classList.add('hidden');
         resortRender();
-        return;
+      } catch (e) {
+        showErr('数据加载失败：' + (e.message || e) + '（请检查网络或仓库是否公开）');
+        resortRender();
       }
-      const appMod = await import('https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js');
-      const fs = await import('https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js');
-      const app = appMod.initializeApp(FIREBASE_CONFIG);
-      const db = fs.getFirestore(app);
-      cloud = { fs, db, col: fs.collection(db, 'meetings') };
-      // 实时订阅：任何人添加，所有打开页面的人都会即时刷新
-      fs.onSnapshot(cloud.col, (snap) => {
-        DATA = snap.docs.map((d) => ({ id: d.id, ...d.data() }));
-        resortRender();
-      }, (err) => {
-        console.error(err);
-        toast('云端读取失败，请检查 Firestore 规则');
-      });
     }
 
-    async function saveEntry(entry) {
-      if (cloudOn && cloud) {
-        await cloud.fs.addDoc(cloud.col, entry);   // onSnapshot 会自动重渲染
-      } else {
-        DATA = [...DATA, { id: 'local-' + Date.now(), ...entry }];
-        lsSave(DATA);
-        resortRender();
+    function showErr(msg) { const n = $('#errNotice'); n.textContent = msg; n.classList.remove('hidden'); }
+
+    /* ---------------- 写入数据（需要令牌）---------------- */
+    async function saveData(message) {
+      if (!token) throw new Error('未设置令牌');
+      // 先取最新 sha，避免覆盖他处改动
+      let sha = fileSha;
+      try {
+        const cur = await fetch(`${API}?ref=${GITEE.branch}&t=${Date.now()}`, { cache: 'no-store' });
+        if (cur.ok) { const j = await cur.json(); sha = j.sha; }
+      } catch (_) {}
+      const content = b64encode(JSON.stringify(DATA, null, 2) + '\n');
+      const body = { access_token: token, content, message, branch: GITEE.branch };
+      const method = sha ? 'PUT' : 'POST';      // 有 sha=更新，无=新建
+      if (sha) body.sha = sha;
+      const res = await fetch(API, { method, headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(body) });
+      if (!res.ok) {
+        let detail = 'HTTP ' + res.status;
+        try { const e = await res.json(); detail = e.message || detail; } catch (_) {}
+        throw new Error(detail);
       }
+      const out = await res.json();
+      fileSha = out.content ? out.content.sha : sha;
     }
 
     /* ---------------- 渲染 ---------------- */
-    const dateKey = (d) => {
-      const m = String(d.date || '').match(/(\d{4})-(\d{1,2})-(\d{1,2})/);
-      const base = m ? Number(m[1]) * 10000 + Number(m[2]) * 100 + Number(m[3]) : 0;
-      return base * 1e13 + (Number(d.ts) || 0);   // 同日按添加时间排
+    const dateNum = (d) => {
+      const m = String(d || '').match(/(\d{4})-(\d{1,2})-(\d{1,2})/);
+      return m ? Number(m[1]) * 10000 + Number(m[2]) * 100 + Number(m[3]) : 0;
     };
     let sorted = [];
-    const resort = () => { sorted = DATA.slice().sort((a, b) => dateKey(b) - dateKey(a)); };
+    const resort = () => { sorted = DATA.map((d, i) => ({ ...d, _i: i })).sort((a, b) => dateNum(b.date) - dateNum(a.date)); };
     const visible = () => {
       const q = query.trim().toLowerCase();
       return q ? sorted.filter((m) => ((m.name || '') + ' ' + (m.date || '')).toLowerCase().includes(q)) : sorted;
@@ -253,43 +276,43 @@
 
       $('#list').innerHTML = slice.length
         ? slice.map((m) => `
-          <li><a href="${esc(m.link || '#')}" target="_blank" rel="noopener">
-            <span class="date">${esc(m.date || '')}</span>
-            <span class="name">${esc(m.name || '(未命名)')}</span>
-            <svg class="arrow" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M7 17 17 7"/><path d="M7 7h10v10"/></svg>
-          </a></li>`).join('')
-        : `<li class="empty">${query ? '没有匹配的结果' : '还没有任何记录，点右上角「添加」'}</li>`;
+          <li class="row" data-i="${m._i}">
+            <a class="link" href="${esc(m.link || '#')}" target="_blank" rel="noopener">
+              <span class="date">${esc(m.date || '')}</span>
+              <span class="name">${esc(m.name || '(未命名)')}</span>
+              <svg class="arrow" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M7 17 17 7"/><path d="M7 7h10v10"/></svg>
+            </a>
+            ${admin ? `<div class="row-tools">
+              <button class="icon-btn" data-act="edit" title="编辑"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 20h9"/><path d="M16.5 3.5a2.12 2.12 0 0 1 3 3L7 19l-4 1 1-4Z"/></svg></button>
+              <button class="icon-btn danger" data-act="del" title="删除"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 6h18"/><path d="M8 6V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/><path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"/></svg></button>
+            </div>` : ''}
+          </li>`).join('')
+        : `<li class="empty">${query ? '没有匹配的结果' : '还没有任何记录'}</li>`;
 
       const pager = $('#pager');
       if (rows.length <= PAGE_SIZE) pager.classList.add('hidden');
       else {
         pager.classList.remove('hidden');
         $('#info').textContent = `第 ${page} / ${pages} 页 · 共 ${rows.length} 个`;
-        $('#prev').disabled = page <= 1;
-        $('#next').disabled = page >= pages;
+        $('#prev').disabled = page <= 1; $('#next').disabled = page >= pages;
       }
     }
     const resortRender = () => { resort(); render(); };
 
     /* ---------------- 周四日期下拉 ---------------- */
-    function buildThursdays() {
-      const out = [];
-      const today = new Date(); today.setHours(0, 0, 0, 0);
-      // 最近的周四（今天或之前）
-      const recent = new Date(today);
-      recent.setDate(recent.getDate() - ((recent.getDay() - 4 + 7) % 7));
-      // 范围：过去约 1 年 ~ 未来约 2 个月
+    function buildThursdays(selected) {
+      const out = []; const today = new Date(); today.setHours(0,0,0,0);
+      const recent = new Date(today); recent.setDate(recent.getDate() - ((recent.getDay() - 4 + 7) % 7));
       const start = new Date(recent); start.setDate(start.getDate() - 7 * 52);
       const end = new Date(recent); end.setDate(end.getDate() + 7 * 8);
       for (let d = new Date(end); d >= start; d.setDate(d.getDate() - 7)) {
-        const iso = `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
+        const iso = `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`;
         out.push({ iso, future: d > today });
       }
       const sel = $('#fDate');
-      sel.innerHTML = out.map((o) => `<option value="${o.iso}">${o.iso}${o.future ? '（未来）' : ''}</option>`).join('');
-      // 默认选中最近的、非未来的那个周四
-      const def = out.find((o) => !o.future);
-      if (def) sel.value = def.iso;
+      const extra = selected && !out.some((o) => o.iso === selected) ? `<option value="${selected}">${selected}（原有）</option>` : '';
+      sel.innerHTML = extra + out.map((o) => `<option value="${o.iso}">${o.iso}${o.future ? '（未来）' : ''}</option>`).join('');
+      sel.value = selected || (out.find((o) => !o.future) || out[0]).iso;
     }
 
     /* ---------------- 交互 ---------------- */
@@ -298,42 +321,86 @@
     $('#prev').addEventListener('click', () => { if (page > 1) { page--; render(); } });
     $('#next').addEventListener('click', () => { page++; render(); });
 
-    const overlay = $('#overlay');
-    const openModal = () => { overlay.classList.add('open'); $('#fName').focus(); };
-    const closeModal = () => overlay.classList.remove('open');
-    $('#openAdd').addEventListener('click', openModal);
-    $('#cancelAdd').addEventListener('click', closeModal);
-    overlay.addEventListener('click', (e) => { if (e.target === overlay) closeModal(); });
-    document.addEventListener('keydown', (e) => { if (e.key === 'Escape') closeModal(); });
+    function toast(msg) { const el = $('#toast'); el.textContent = msg; el.classList.add('show'); clearTimeout(toast._t); toast._t = setTimeout(() => el.classList.remove('show'), 3800); }
 
-    function toast(msg) {
-      const el = $('#toast'); el.textContent = msg; el.classList.add('show');
-      clearTimeout(toast._t); toast._t = setTimeout(() => el.classList.remove('show'), 3500);
+    /* 管理模式开关 */
+    function setAdmin(on) {
+      admin = on;
+      $('#openAdd').classList.toggle('hidden', !on);
+      $('#adminToggle').classList.toggle('on', on);
+      $('#adminLabel').textContent = on ? '退出管理' : '管理';
+      render();
     }
+    $('#adminToggle').addEventListener('click', () => {
+      if (admin) { setAdmin(false); return; }
+      if (token) setAdmin(true);
+      else $('#tokenOverlay').classList.add('open');
+    });
+    $('#cancelToken').addEventListener('click', () => $('#tokenOverlay').classList.remove('open'));
+    $('#saveToken').addEventListener('click', () => {
+      const v = $('#fToken').value.trim();
+      if (!v) { $('#fToken').focus(); return; }
+      token = v; localStorage.setItem(TOKEN_KEY, v);
+      $('#fToken').value = ''; $('#tokenOverlay').classList.remove('open');
+      setAdmin(true); toast('已进入管理模式');
+    });
 
-    $('#submitAdd').addEventListener('click', async () => {
-      const date = $('#fDate').value;
-      const name = $('#fName').value.trim();
-      const link = $('#fLink').value.trim();
-      if (!name) { $('#fName').focus(); toast('请填写名字'); return; }
-      if (!link) { $('#fLink').focus(); toast('请填写链接'); return; }
+    /* 添加 / 编辑弹窗 */
+    const overlay = $('#overlay');
+    function openModal(index) {
+      editingIndex = (typeof index === 'number') ? index : -1;
+      const editing = editingIndex >= 0;
+      $('#modalTitle').textContent = editing ? '编辑记录' : '添加组会 PPT';
+      const m = editing ? DATA[editingIndex] : null;
+      buildThursdays(m ? m.date : null);
+      $('#fName').value = m ? (m.name || '') : '';
+      $('#fLink').value = m ? (m.link || '') : '';
+      overlay.classList.add('open'); $('#fName').focus();
+    }
+    $('#openAdd').addEventListener('click', () => openModal());
+    $('#cancelAdd').addEventListener('click', () => overlay.classList.remove('open'));
+    overlay.addEventListener('click', (e) => { if (e.target === overlay) overlay.classList.remove('open'); });
+    document.addEventListener('keydown', (e) => { if (e.key === 'Escape') { overlay.classList.remove('open'); $('#tokenOverlay').classList.remove('open'); } });
 
-      const btn = $('#submitAdd'); btn.disabled = true; btn.textContent = '保存中…';
-      try {
-        await saveEntry({ date, name, link, ts: Date.now() });
-        closeModal();
-        $('#fName').value = ''; $('#fLink').value = '';
-        toast(cloudOn ? '已保存 ✓ 所有人即时可见' : '已保存到本地 ✓');
-      } catch (e) {
-        console.error(e); toast('保存失败：' + (e.message || e));
-      } finally {
-        btn.disabled = false; btn.textContent = '保存';
+    // 行内 编辑/删除
+    $('#list').addEventListener('click', async (e) => {
+      const btn = e.target.closest('[data-act]'); if (!btn) return;
+      const li = e.target.closest('.row'); const i = Number(li.dataset.i);
+      if (btn.dataset.act === 'edit') { openModal(i); return; }
+      if (btn.dataset.act === 'del') {
+        const m = DATA[i];
+        if (!confirm(`删除「${m.name}」(${m.date})？`)) return;
+        const backup = DATA.slice();
+        DATA = DATA.filter((_, idx) => idx !== i); resortRender();
+        try { await saveData(`delete: ${m.name}`); toast('已删除 ✓'); }
+        catch (err) { DATA = backup; resortRender(); toast('删除失败：' + err.message); }
       }
     });
 
+    // 保存（新增 / 编辑）
+    $('#submitAdd').addEventListener('click', async () => {
+      const date = $('#fDate').value;
+      const name = $('#fName').value.trim();
+      let link = $('#fLink').value.trim();
+      if (!name) { $('#fName').focus(); toast('请填写名字'); return; }
+      if (!link) { $('#fLink').focus(); toast('请填写链接'); return; }
+      if (!/^https?:\/\//i.test(link)) { link = 'https://' + link.replace(/^\/+/, ''); }
+
+      const btn = $('#submitAdd'); btn.disabled = true; btn.textContent = '保存中…';
+      const backup = DATA.slice();
+      if (editingIndex >= 0) DATA = DATA.map((d, idx) => idx === editingIndex ? { date, name, link } : d);
+      else DATA = [...DATA, { date, name, link }];
+      resortRender();
+      try {
+        await saveData((editingIndex >= 0 ? 'edit: ' : 'add: ') + name);
+        overlay.classList.remove('open'); toast('已保存 ✓ 国内访客刷新即可看到');
+      } catch (err) {
+        DATA = backup; resortRender(); toast('保存失败：' + err.message);
+      } finally { btn.disabled = false; btn.textContent = '保存'; editingIndex = -1; }
+    });
+
     /* ---------------- 启动 ---------------- */
-    buildThursdays();
-    initBackend();
+    loadData();
   </script>
 </body>
 </html>
